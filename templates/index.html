@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Assignment 6</title>
+</head>
+<body>
+<div style="text-align: center">
+    <h1>Yaswanth Janardhan Konduru</h1>
+    <h3>1001741845</h3>
+</div>
+<div>
+    <form action="{{url_for('game')}}" enctype=multipart/form-data method="POST" style="width:30%;">
+        <fieldset>
+            <legend>Login</legend>
+            <input type="radio" name="user" value="student" id="student">
+            <label for="student">Student</label>
+            <input type="radio" name="user" value="professor" id="professor">
+            <label for="professor">Professor</label>
+            <input type="radio" name="user" value="admin" id="admin">
+            <label for="admin">Admin</label><br><br>
+            <label for="username">Enter the Username</label>
+            <input type="text" id="username" name="username"><br><br>
+            <label for="room">Enter the Room number</label>
+            <input type="text" id="room" name="room"><br><br>
+            <a href="/game"><input type="submit" value="login"></a>
+        </fieldset>
+    </form>
+</div>
+</body>
+</html>
