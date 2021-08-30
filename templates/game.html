@@ -1,38 +1,59 @@
 <!DOCTYPE html>
 <html>
+<p id="countdown">Countdown Beginning</p>
 <head>
     <title>Assignment 6</title>
 </head>
 <script type="text/javascript" src="//code.jquery.com/jquery-1.4.2.min.js"></script>
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+<script>
+  var timer = 300;
+  var url = "/"
+  var downloadTimer = setInterval(function () {
+    document.getElementById("countdown").innerHTML = `${timer} seconds left`;
+    timer -= 1;
+    if (timer <= 0) {
+      clearInterval(downloadTimer);
+      document.getElementById("countdown").innerHTML = "The time has ended!";
+      window.location.href = url;
+    }
+  }, 1000);
+</script>
 <script type="text/javascript" charset="utf-8">
-    var socket;
+    var port;
     var category;
-    var suffix;
+    var appends;
 
     $(document).ready(function(){
-        socket = io.connect('http://' + document.domain + ':' + location.port + '/game');
+        port = io.connect('http://' + document.domain + ':' + location.port + '/game');
 
-        socket.on('connect', function() {
-            socket.emit('join', {username: "{{username}}",  room:"{{room}}" });
+        port.on('connect', function() {
+            port.emit('join', {username: "{{username}}",  room:"{{room}}" });
         });
 
-        socket.on('status', function(data) {
+        port.on('status', function(data) {
             document.getElementById("chat").innerHTML = document.getElementById("chat").innerHTML+ data.msg +"<br/>";
         });
 
-        socket.on('message', function(data) {
+        port.on('message', function(data) {
                category = "{{category}}";
-               suffix = data.msg.split("_")[1];
+               var scores = []
+               var sum = 0
+               appends = data.msg.split("_")[1];
                data.msg=data.msg.split("_")[0];
 
-               if( category == "professor" && suffix == "answer")
+               if( category == "professor" && appends == "answer")
                 {
-                    data.msg = data.msg+"  "+'<input type="text" id="score" name="iscore" placeholder="score">' ;
+                    data.msg = data.msg+"  "+'<input type="text" id="score" name="score" placeholder="score">';
                 }
-                else if(category == "student" && suffix == "question")
+                else if(category == "student" && appends == "question")
                 {
-                    data.msg = data.msg+"\nScore for this question is: ";
+                    scores.push(data.msg)
+                    for(var i=0; i<scores.length;i++){
+                        sum += i
+                    }
+                    avg = sum/scores.length
+                    data.msg = data.msg+"\nis the score for your above answer" + "\n Avg Score is"+avg;
                     console.log(data.msg);
                 }
                 document.getElementById("chat").innerHTML = document.getElementById("chat").innerHTML+data.msg+"<br/>";
@@ -51,7 +72,22 @@
                 {
                     text = text+"_answer";
                 }
-                socket.emit('text', {  msg:text, username:"{{username}}",  room:"{{room}}" });
+                port.emit('text', {  msg:text, username:"{{username}}",  room:"{{room}}" });
+        });
+
+        $('#sendscore').click(function(e) {
+                text = $('#score').val();
+                $('#score').val('');
+
+                if( category == "professor")
+                {
+                    text = text+"_question";
+                }
+                else if(category == "student")
+                {
+                    text = text+"_answer";
+                }
+                port.emit('text', {  msg:text, username:"{{username}}",  room:"{{room}}" });
         });
 
 
@@ -75,6 +111,7 @@
             <label for="text">{{subtext}}</label>
             <input type="text" id="text" name="answer"><br><br>
             <button type="button" id="send">Send</button>
+            <button type="button" id="sendscore">Send Score</button>
         </fieldset>
     </form>
 </div>

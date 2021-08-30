@@ -60,18 +60,5 @@ def text(message):
     emit('message', {'msg':   usertype + " " + message['username'] + ' : ' + message['msg']}, room=room)
 
 
-@application.route("/logout")
-def logout():
-    session.pop('user', None)
-    session.pop('room', None)
-    return render_template('index.html')
-
-
-@application.route("/endgame")
-def endgame():
-    session.pop('user', None)
-    return render_template('index.html')
-
-
 if __name__ == '__main__':
     socketio.run(application, debug=True)
